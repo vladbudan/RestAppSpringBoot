@@ -1,19 +1,21 @@
 package com.vladbudan.app.service;
 
-import com.vladbudan.app.dto.modelDto.DogDto;
+import com.vladbudan.app.dto.model.CatDto;
+import com.vladbudan.app.dto.model.DogDto;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface DogService {
 
-    Optional<DogDto> getDogById(Long id);
+    DogDto getById(Long id);
 
-    DogDto addDog(DogDto dogDto);
+    DogDto add(DogDto dogDto);
 
     DogDto update(DogDto dogDto);
 
-    void deleteDog(Long id);
+    void delete(Long id);
 
-    List<DogDto> getAllDogs();
+    List<DogDto> getAll();
+
+    DogDto assignByUserId(Long userId, Long dogId);
 }

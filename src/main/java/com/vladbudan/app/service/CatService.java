@@ -1,20 +1,21 @@
 package com.vladbudan.app.service;
 
-import com.vladbudan.app.dto.modelDto.CatDto;
+import com.vladbudan.app.dto.model.CatDto;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface CatService {
 
-    Optional<CatDto> getCatById(Long id);
+    CatDto getById(Long id);
 
-    CatDto addCat(CatDto catDto);
+    CatDto add(CatDto catDto);
 
     CatDto update(CatDto catDto);
 
-    void deleteCat(Long id);
+    void delete(Long id);
 
-    List<CatDto> getAllCats();
+    List<CatDto> getAll();
+
+    CatDto assignByUserId(Long userId, Long catId);
 
 }

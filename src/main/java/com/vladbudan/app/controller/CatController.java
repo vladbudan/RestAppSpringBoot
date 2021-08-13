@@ -1,9 +1,10 @@
 package com.vladbudan.app.controller;
 
-import com.vladbudan.app.dto.modelDto.CatDto;
+import com.vladbudan.app.dto.model.CatDto;
 import com.vladbudan.app.service.CatService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,37 +12,40 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RestController
 @RequestMapping("/cats")
+@RequiredArgsConstructor
 public class CatController {
 
-    @Autowired
-    private CatService catService;
+    private final CatService catService;
 
     @GetMapping("/{id}")
-    public Optional<CatDto> getCatById(@PathVariable Long id) {
+    public CatDto getCatById(@PathVariable Long id) {
 
         log.info("In CatController getCatById {}", id);
 
-        return catService.getCatById(id);
+        return catService.getById(id);
     }
 
     @PostMapping
-    public CatDto addCat(@RequestBody CatDto catDto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public CatDto addCat(@Valid @RequestBody CatDto catDto) {
 
         log.info("In CatController addCat {}", catDto);
 
-        return catService.addCat(catDto);
+        return catService.add(catDto);
     }
 
     @PutMapping("/{id}")
-    public CatDto updateCat(@PathVariable Long id, @RequestBody CatDto catDto) {
+    @ResponseStatus(HttpStatus.OK)
+    public CatDto updateCat(@PathVariable Long id, @Valid @RequestBody CatDto catDto) {
 
         log.info("In CatController updateCat {}, {}", id, catDto);
 
@@ -51,11 +55,12 @@ public class CatController {
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCat(@PathVariable Long id) {
 
         log.info("In CatController deleteCat {}", id);
 
-        catService.deleteCat(id);
+        catService.delete(id);
     }
 
     @GetMapping
@@ -63,7 +68,7 @@ public class CatController {
 
         log.info("In CatController getAllCats");
 
-        return catService.getAllCats();
+        return catService.getAll();
     }
 
 }

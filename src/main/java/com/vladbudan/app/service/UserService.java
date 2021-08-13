@@ -1,19 +1,20 @@
 package com.vladbudan.app.service;
 
-import com.vladbudan.app.dto.modelDto.UserDto;
+import com.vladbudan.app.dto.model.UserDto;
+import com.vladbudan.app.model.User;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService {
 
-    Optional<UserDto> getById(Long id);
+    UserDto getById(Long id);
 
-    UserDto addUser(UserDto userDto);
+    UserDto add(UserDto userDto);
 
     UserDto update(UserDto userDto);
 
     void delete(Long id);
 
     List<UserDto> getAll();
+
 }

@@ -14,8 +14,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import static javax.persistence.DiscriminatorType.STRING;
-import static javax.persistence.InheritanceType.SINGLE_TABLE;
 import static javax.persistence.GenerationType.IDENTITY;
+import static javax.persistence.InheritanceType.SINGLE_TABLE;
 
 @Data
 @Entity

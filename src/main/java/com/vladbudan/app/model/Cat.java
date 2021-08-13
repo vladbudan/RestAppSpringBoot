@@ -13,5 +13,4 @@ import javax.persistence.Entity;
 public class Cat extends Pet{
 
     private String gender;
-
 }

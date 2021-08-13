@@ -1,52 +1,55 @@
 package com.vladbudan.app.service.impl;
 
-import com.vladbudan.app.dto.converter.DogDtoConverter;
-import com.vladbudan.app.dto.modelDto.DogDto;
+import com.vladbudan.app.dto.converter.CatConverter;
+import com.vladbudan.app.dto.model.CatDto;
+import com.vladbudan.app.dto.model.DogDto;
+import com.vladbudan.app.model.Cat;
 import com.vladbudan.app.model.Dog;
+import com.vladbudan.app.model.User;
 import com.vladbudan.app.repository.DogRepository;
+import com.vladbudan.app.repository.UserRepository;
 import com.vladbudan.app.service.DogService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static com.vladbudan.app.dto.converter.DogConverter.convertListToDto;
+import static com.vladbudan.app.dto.converter.DogConverter.convertToDto;
+import static com.vladbudan.app.dto.converter.DogConverter.convertToEntity;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class DogServiceImpl implements DogService {
 
-    @Autowired
-    private DogRepository dogRepository;
-
-    @Autowired
-    private DogDtoConverter dogDtoConverter;
+    private final DogRepository dogRepository;
+    private final UserRepository userRepository;
 
     @Override
-    public Optional<DogDto> getDogById(Long id) {
+    public DogDto getById(Long id) {
+
         log.info("In DogServiceImpl getById {}", id);
 
-        Optional<Dog> optionalDog = Optional.ofNullable(dogRepository.findOne(id));
+        Dog dog = dogRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Dog with such id not found!"));
 
-        if (!optionalDog.isPresent()) {
-            throw new EntityNotFoundException("User with such id not found!");
-        }
-
-        return Optional.of(dogDtoConverter.convertToDto(optionalDog.get()));
+        return convertToDto(dog);
     }
 
     @Override
-    public DogDto addDog(DogDto dogDto) {
+    public DogDto add(DogDto dogDto) {
 
         log.info("In DogServiceImpl save {}", dogDto);
 
-        Dog dog = dogDtoConverter.convertToEntity(dogDto);
+        Dog dog = convertToEntity(dogDto);
 
         Dog dogCreated = dogRepository.save(dog);
 
-        return dogDtoConverter.convertToDto(dogCreated);
+        return convertToDto(dogCreated);
     }
 
     @Override
@@ -54,31 +57,46 @@ public class DogServiceImpl implements DogService {
 
         log.info("In DogServiceImpl update {}", dogDto);
 
-        Dog dog = dogDtoConverter.convertToEntity(dogDto);
+        Dog dog = convertToEntity(dogDto);
 
         Dog dogUpdated = dogRepository.save(dog);
 
-        return dogDtoConverter.convertToDto(dogUpdated);
+        return convertToDto(dogUpdated);
     }
 
     @Override
-    public void deleteDog(Long id) {
+    public void delete(Long id) {
 
         log.info("In DogServiceImpl delete {}", id);
 
-        dogRepository.delete(id);
+        dogRepository.deleteById(id);
     }
 
     @Override
-    public List<DogDto> getAllDogs() {
+    public List<DogDto> getAll() {
 
         log.info("In CarServiceImpl getAll");
 
         List<Dog> dogs = dogRepository.findAll();
 
-        return dogs.stream()
-                .map(dog -> dogDtoConverter.convertToDto(dog))
-                .collect((Collectors.toList()));
+        return convertListToDto(dogs);
+    }
+
+    @Override
+    @Transactional
+    public DogDto assignByUserId(Long userId, Long dogId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with such id not found!"));
+
+        Dog dog = dogRepository.findById(dogId)
+                .orElseThrow(() -> new EntityNotFoundException("Dog with such id not found!"));
+
+        dog.setUser(user);
+
+        Dog dogOfUser = dogRepository.save(dog);
+
+        return convertToDto(dogOfUser);
     }
 
 }

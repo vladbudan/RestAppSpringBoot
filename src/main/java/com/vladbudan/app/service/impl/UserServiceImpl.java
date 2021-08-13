@@ -1,53 +1,48 @@
 package com.vladbudan.app.service.impl;
 
-import com.vladbudan.app.dto.converter.UserDtoConverter;
-import com.vladbudan.app.dto.modelDto.UserDto;
+import com.vladbudan.app.dto.model.UserDto;
 import com.vladbudan.app.model.User;
 import com.vladbudan.app.repository.UserRepository;
 import com.vladbudan.app.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static com.vladbudan.app.dto.converter.UserConverter.convertListToDto;
+import static com.vladbudan.app.dto.converter.UserConverter.convertToDto;
+import static com.vladbudan.app.dto.converter.UserConverter.convertToEntity;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private UserDtoConverter userDtoConverter;
+    private final UserRepository userRepository;
 
     @Override
-    public Optional<UserDto> getById(Long id) {
+    public UserDto getById(Long id) {
 
         log.info("In UserServiceImpl getById {}", id);
 
-        Optional<User> optionalUser = Optional.ofNullable(userRepository.findOne(id));
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User with such id not found!"));
 
-        if(!optionalUser.isPresent()) {
-            throw new EntityNotFoundException("User with such id not found!");
-        }
-
-        return Optional.of(userDtoConverter.convertToDto(optionalUser.get()));
+        return convertToDto(user);
     }
 
     @Override
-    public UserDto addUser(UserDto userDto) {
+    public UserDto add(UserDto userDto) {
 
         log.info("In UserServiceImpl save {}", userDto);
 
-        User user = userDtoConverter.convertToEntity(userDto);
+        User user = convertToEntity(userDto);
 
         User userCreated = userRepository.save(user);
 
-        return userDtoConverter.convertToDto(userCreated);
+        return convertToDto(userCreated);
     }
 
     @Override
@@ -55,11 +50,11 @@ public class UserServiceImpl implements UserService {
 
         log.info("In UserServiceImpl update {}", userDto);
 
-        User user = userDtoConverter.convertToEntity(userDto);
+        User user = convertToEntity(userDto);
 
         User userUpdated = userRepository.save(user);
 
-        return userDtoConverter.convertToDto(userUpdated);
+        return convertToDto(userUpdated);
     }
 
     @Override
@@ -67,7 +62,7 @@ public class UserServiceImpl implements UserService {
 
         log.info("In UserServiceImpl delete {}", id);
 
-        userRepository.delete(id);
+        userRepository.deleteById(id);
     }
 
     @Override
@@ -77,9 +72,7 @@ public class UserServiceImpl implements UserService {
 
         List<User> users = userRepository.findAll();
 
-        return users.stream()
-                .map(user -> userDtoConverter.convertToDto(user))
-                .collect((Collectors.toList()));
+        return convertListToDto(users);
     }
 
 }
